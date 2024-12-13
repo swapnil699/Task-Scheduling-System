@@ -12,6 +12,7 @@ import org.example.taskscheduling.repositorys.TaskRepository;
 import org.example.taskscheduling.repositorys.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -53,6 +54,20 @@ public class TaskServiceImpl implements TaskService {
     public Task getTaskById(Long id) throws TaskNotFoundException {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+    }
+
+    @Override
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
+    }
+
+    @Override
+    public void deleteTask(Long id) {
+        if (taskRepository.existsById(id)) {
+            taskRepository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("User not found with ID: " + id);
+        }
     }
 }
 
