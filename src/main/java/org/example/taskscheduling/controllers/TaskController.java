@@ -46,32 +46,41 @@ public class TaskController {
             return ResponseEntity.notFound().build();  // Return 404 if task not found
         }
     }
-//
-//    // Update a task
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask) {
-//        Task task = taskService.updateTask(id, updatedTask);
-//        return ResponseEntity.ok(task);
-//    }
-//
+
     // Delete a task
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.ok("Task deleted successfully");
     }
-//
-//    // Assign a task to a user
-//    @PostMapping("/{taskId}/assign/{userId}")
-//    public ResponseEntity<String> assignTaskToUser(@PathVariable Long taskId, @PathVariable Long userId) {
-//        taskService.assignTaskToUser(taskId, userId);
-//        return ResponseEntity.ok("Task assigned successfully");
-//    }
-//
-//    // Update task status
-//    @PatchMapping("/{taskId}/status")
-//    public ResponseEntity<Task> updateTaskStatus(@PathVariable Long taskId, @RequestParam String status) {
-//        Task updatedTask = taskService.updateTaskStatus(taskId, status);
-//        return ResponseEntity.ok(updatedTask);
-//    }
+
+    // Assign a task to a user
+    @PostMapping("/{taskId}/assign/{userId}")
+    public ResponseEntity<String> assignTaskToUser(@PathVariable Long taskId, @PathVariable Long userId) throws UserNotFoundException, TaskNotFoundException {
+        taskService.assignTaskToUser(taskId, userId);
+        return ResponseEntity.ok("Task assigned successfully");
+    }
+    // Update a task
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask) {
+        try {
+            Task task = taskService.updateTask(id, updatedTask);
+            return ResponseEntity.ok(task); // Return the updated task
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.notFound().build(); // Return 404 if task not found
+        }
+    }
+
+    // Update task status
+    @PatchMapping("/{taskId}/status")
+    public ResponseEntity<Task> updateTaskStatus(@PathVariable Long taskId, @RequestParam String status) {
+        try {
+            Task updatedTask = taskService.updateTaskStatus(taskId, status.toUpperCase()); // Normalize status to uppercase
+            return ResponseEntity.ok(updatedTask); // Return the task with updated status
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.notFound().build(); // Return 404 if task not found
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // Return 400 if invalid status
+        }
+    }
 }

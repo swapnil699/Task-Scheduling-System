@@ -5,6 +5,7 @@ import org.example.taskscheduling.exceptions.ProjectNotFoundException;
 import org.example.taskscheduling.exceptions.TaskNotFoundException;
 import org.example.taskscheduling.exceptions.UserNotFoundException;
 import org.example.taskscheduling.models.Project;
+import org.example.taskscheduling.models.Status;
 import org.example.taskscheduling.models.Task;
 import org.example.taskscheduling.models.User;
 import org.example.taskscheduling.repositorys.ProjectRepository;
@@ -69,6 +70,57 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("User not found with ID: " + id);
         }
     }
+
+    @Override
+    public void assignTaskToUser(Long taskId, Long userId) throws UserNotFoundException, TaskNotFoundException {
+        // Retrieve the user from the repository
+        User assignee = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+        // Retrieve the task from the repository
+        Task taskToAssign = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task with ID " + taskId + " not found"));
+
+        // Assign the user to the task
+        taskToAssign.setAssignee(assignee);
+
+        // Save the updated task to persist changes
+        taskRepository.save(taskToAssign);
+    }
+    @Override
+    public Task updateTask(Long id, Task updatedTask) throws TaskNotFoundException {
+        // Fetch the existing task
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException("Task with ID " + id + " not found"));
+
+        // Update task fields
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setDeadline(updatedTask.getDeadline());
+        existingTask.setProject(updatedTask.getProject());
+        existingTask.setAssignee(updatedTask.getAssignee());
+
+        // Save the updated task
+        return taskRepository.save(existingTask);
+    }
+
+    @Override
+    public Task updateTaskStatus(Long taskId, String status) throws TaskNotFoundException, IllegalArgumentException {
+        // Fetch the existing task
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task with ID " + taskId + " not found"));
+
+        // Validate and update the status
+        try {
+            task.setStatus(Status.valueOf(status)); // Convert the string to the Status enum
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status: " + status); // Throw exception for invalid status
+        }
+
+        // Save the updated task
+        return taskRepository.save(task);
+    }
+
 }
 
 

@@ -19,4 +19,10 @@ public interface TaskService {
     List<Task> getAllTasks();
 
     void deleteTask(Long id);
+
+    void assignTaskToUser(Long taskId, Long userId) throws UserNotFoundException, TaskNotFoundException;
+    Task updateTask(Long id, Task updatedTask) throws TaskNotFoundException;
+
+    Task updateTaskStatus(Long taskId, String status) throws TaskNotFoundException, IllegalArgumentException;
+
 }
