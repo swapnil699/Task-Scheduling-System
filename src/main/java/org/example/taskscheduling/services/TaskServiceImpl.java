@@ -17,11 +17,10 @@ import java.util.Optional;
 @Service
 public class TaskServiceImpl implements TaskService {
 
-    private ProjectRepository projectRepository;
-    private TaskRepository taskRepository;
-    private UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
-    // Constructor injection for repositories
     TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -30,28 +29,21 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task createTask(TaskCreationDTO task) throws UserNotFoundException, ProjectNotFoundException {
-        // Initialize a new Task object
         Task newTask = new Task();
 
-        // Retrieve the user from the repository using the ID from the DTO
-        Optional<User> userOp = userRepository.findById(task.getAssignee().getId());
-        if (!userOp.isPresent()) {
-            throw new UserNotFoundException("User not found");
-        }
+        // Retrieve the user and project
+        User assignee = userRepository.findById(task.getAssignee().getId())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        Project project = projectRepository.findById(task.getProject().getId())
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
 
-        // Retrieve the project from the repository using the ID from the DTO
-        Optional<Project> projectOp = projectRepository.findById(task.getProject().getId());
-        if (!projectOp.isPresent()) {
-            throw new ProjectNotFoundException("Project not found");
-        }
-
-        // Set the assignee and project of the task
-        newTask.setAssignee(userOp.get());
-        newTask.setProject(projectOp.get());
+        // Set basic task details
+        newTask.setAssignee(assignee);
+        newTask.setProject(project);
         newTask.setDescription(task.getDescription());
         newTask.setTitle(task.getTitle());
 
-        // Save the new task to the repository
+        // Save the task
         taskRepository.save(newTask);
 
         return newTask;
@@ -63,3 +55,5 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new TaskNotFoundException("Task not found"));
     }
 }
+
+

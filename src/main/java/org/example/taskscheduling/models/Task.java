@@ -26,8 +26,20 @@ public class Task extends BaseModel {
     private LocalDateTime deadline;
 
     @Enumerated(EnumType.STRING)
-    private Status status; // Enum for status
+    private Status status;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     private List<Notification> notifications;
+
+    // Set default values before persisting
+    @PrePersist
+    public void setDefaults() {
+        if (this.status == null) {
+            this.status = Status.PENDING;
+        }
+        if (this.deadline == null) {
+            this.deadline = LocalDateTime.now().plusDays(10);
+        }
+    }
 }
+
