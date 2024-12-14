@@ -13,6 +13,9 @@ public class User extends BaseModel {
 
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    private Roles roles;
+
     @OneToMany(mappedBy = "assignee", cascade = CascadeType.ALL)
     private List<Task> tasks;
 
