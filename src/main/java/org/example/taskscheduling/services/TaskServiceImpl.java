@@ -4,10 +4,7 @@ import org.example.taskscheduling.dtos.TaskCreationDTO;
 import org.example.taskscheduling.exceptions.ProjectNotFoundException;
 import org.example.taskscheduling.exceptions.TaskNotFoundException;
 import org.example.taskscheduling.exceptions.UserNotFoundException;
-import org.example.taskscheduling.models.Project;
-import org.example.taskscheduling.models.Status;
-import org.example.taskscheduling.models.Task;
-import org.example.taskscheduling.models.User;
+import org.example.taskscheduling.models.*;
 import org.example.taskscheduling.repositorys.ProjectRepository;
 import org.example.taskscheduling.repositorys.TaskRepository;
 import org.example.taskscheduling.repositorys.UserRepository;
@@ -36,6 +33,10 @@ public class TaskServiceImpl implements TaskService {
         // Retrieve the user and project
         User assignee = userRepository.findById(task.getAssignee().getId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+        // Check if the user's role is MANAGER
+        if (assignee.getRoles() != Roles.MANEGER) {
+            throw new IllegalArgumentException("Only users with the MANAGER role can be assigned tasks.");
+        }
         Project project = projectRepository.findById(task.getProject().getId())
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
 
@@ -67,7 +68,7 @@ public class TaskServiceImpl implements TaskService {
         if (taskRepository.existsById(id)) {
             taskRepository.deleteById(id);
         } else {
-            throw new IllegalArgumentException("User not found with ID: " + id);
+            throw new IllegalArgumentException("Task not found with ID: " + id);
         }
     }
 
