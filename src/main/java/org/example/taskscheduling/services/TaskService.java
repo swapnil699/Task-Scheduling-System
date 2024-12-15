@@ -30,4 +30,6 @@ public interface TaskService {
     Task updateTaskStatus(Long taskId, String status) throws TaskNotFoundException, IllegalArgumentException;
 
     Page<Task> getTasksByProjectIdWithPagination(Long projectId, Pageable pageable);
+    Page<Task> getTasksByProjectIdWithPaginationAndSorting(Long projectId, Pageable pageable);
+
 }

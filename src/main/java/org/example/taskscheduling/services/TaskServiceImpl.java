@@ -130,6 +130,11 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findByProjectId(projectId, pageable);
     }
 
+    @Override
+    public Page<Task> getTasksByProjectIdWithPaginationAndSorting(Long projectId, Pageable pageable) {
+        return taskRepository.findByProjectId(projectId, pageable);
+    }
+
 }
 
 

@@ -7,6 +7,7 @@ import org.example.taskscheduling.exceptions.UserNotFoundException;
 import org.example.taskscheduling.models.Task;
 import org.example.taskscheduling.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
@@ -97,4 +98,24 @@ public class TaskController {
         Page<Task> tasks = taskService.getTasksByProjectIdWithPagination(projectId, pageable);
         return ResponseEntity.ok(tasks);
     }
+
+    // pagination + soring GET http://localhost:8080/tasks/project/1/paginated-sorted?page=0&size=5&sortBy=title
+    @GetMapping("/project/{projectId}/paginated-sorted")
+    public ResponseEntity<Page<Task>> getTasksByProjectWithPaginationAndSorting(
+            @PathVariable Long projectId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sortBy) {
+
+        List<String> validSortFields = List.of("title", "description", "deadline", "status");
+        if (!validSortFields.contains(sortBy)) {
+            sortBy = "title"; // Default sorting field
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
+        Page<Task> tasks = taskService.getTasksByProjectIdWithPaginationAndSorting(projectId, pageable);
+        return ResponseEntity.ok(tasks);
+    }
+
+
 }
