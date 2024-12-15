@@ -8,7 +8,10 @@ import org.example.taskscheduling.models.*;
 import org.example.taskscheduling.repositorys.ProjectRepository;
 import org.example.taskscheduling.repositorys.TaskRepository;
 import org.example.taskscheduling.repositorys.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -120,6 +123,11 @@ public class TaskServiceImpl implements TaskService {
 
         // Save the updated task
         return taskRepository.save(task);
+    }
+
+    @Override
+    public Page<Task> getTasksByProjectIdWithPagination(Long projectId, Pageable pageable) {
+        return taskRepository.findByProjectId(projectId, pageable);
     }
 
 }

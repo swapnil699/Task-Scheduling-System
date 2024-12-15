@@ -9,6 +9,9 @@ import org.example.taskscheduling.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -82,5 +85,16 @@ public class TaskController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null); // Return 400 if invalid status
         }
+    }
+    //pagination http://localhost:8080/tasks/project/1/paginated?page=0&size=5
+    @GetMapping("/project/{projectId}/paginated")
+    public ResponseEntity<Page<Task>> getTasksByProjectWithPagination(
+            @PathVariable Long projectId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> tasks = taskService.getTasksByProjectIdWithPagination(projectId, pageable);
+        return ResponseEntity.ok(tasks);
     }
 }
