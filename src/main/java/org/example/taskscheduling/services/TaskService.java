@@ -4,6 +4,7 @@ import org.example.taskscheduling.dtos.TaskCreationDTO;
 import org.example.taskscheduling.exceptions.ProjectNotFoundException;
 import org.example.taskscheduling.exceptions.TaskNotFoundException;
 import org.example.taskscheduling.exceptions.UserNotFoundException;
+import org.example.taskscheduling.models.Pokemon;
 import org.example.taskscheduling.models.Project;
 import org.example.taskscheduling.models.Task;
 import org.springframework.data.domain.Pageable;
@@ -31,5 +32,8 @@ public interface TaskService {
 
     Page<Task> getTasksByProjectIdWithPagination(Long projectId, Pageable pageable);
     Page<Task> getTasksByProjectIdWithPaginationAndSorting(Long projectId, Pageable pageable);
+    Task completeTask(Long taskId, Long userId) throws TaskNotFoundException, UserNotFoundException;
+    Pokemon rewardUserWithPokemon(String pokemonName);
 
+    String getRandomPokemonName();
 }

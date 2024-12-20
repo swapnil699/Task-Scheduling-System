@@ -4,6 +4,7 @@ import org.example.taskscheduling.dtos.TaskCreationDTO;
 import org.example.taskscheduling.exceptions.ProjectNotFoundException;
 import org.example.taskscheduling.exceptions.TaskNotFoundException;
 import org.example.taskscheduling.exceptions.UserNotFoundException;
+import org.example.taskscheduling.models.Pokemon;
 import org.example.taskscheduling.models.Task;
 import org.example.taskscheduling.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,5 +118,16 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-
+    //task reward
+    @PostMapping("/{taskId}/complete")
+    public ResponseEntity<Pokemon> completeTask(@PathVariable Long taskId, @RequestParam Long userId) {
+        try {
+            taskService.completeTask(taskId, userId);
+            String randomPokemonName = taskService.getRandomPokemonName();
+            Pokemon rewardedPokemon = taskService.rewardUserWithPokemon(randomPokemonName);
+            return ResponseEntity.ok(rewardedPokemon);
+        } catch (TaskNotFoundException | UserNotFoundException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

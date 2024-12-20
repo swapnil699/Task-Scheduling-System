@@ -5,6 +5,7 @@ import org.example.taskscheduling.exceptions.ProjectNotFoundException;
 import org.example.taskscheduling.exceptions.TaskNotFoundException;
 import org.example.taskscheduling.exceptions.UserNotFoundException;
 import org.example.taskscheduling.models.*;
+import org.example.taskscheduling.repositorys.PokemonRepository;
 import org.example.taskscheduling.repositorys.ProjectRepository;
 import org.example.taskscheduling.repositorys.TaskRepository;
 import org.example.taskscheduling.repositorys.UserRepository;
@@ -22,11 +23,15 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final PokemonRepository pokemonRepository;
+    private final PokemonService pokemonService;
 
-    TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository) {
+    TaskServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository, PokemonRepository pokemonRepository, PokemonService pokemonService) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.pokemonRepository = pokemonRepository;
+        this.pokemonService = pokemonService;
     }
 
     @Override
@@ -133,6 +138,44 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Page<Task> getTasksByProjectIdWithPaginationAndSorting(Long projectId, Pageable pageable) {
         return taskRepository.findByProjectId(projectId, pageable);
+    }
+
+    @Override
+    public Task completeTask(Long taskId, Long userId) throws TaskNotFoundException, UserNotFoundException {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found"));
+
+        if (!task.getAssignee().equals(userId)) {
+            throw new UserNotFoundException("User is not assigned to this task");
+        }
+
+        // Mark the task as completed
+        task.setStatus(Status.COMPLETED);
+        taskRepository.save(task);
+
+        // Reward the user with a random Pokémon
+        String randomPokemonName = getRandomPokemonName(); // Implement this helper method
+        Pokemon rewardedPokemon = rewardUserWithPokemon(randomPokemonName);
+
+        return task; // Return the updated task
+    }
+
+    @Override
+    public Pokemon rewardUserWithPokemon(String pokemonName) {
+        String pokemonData = pokemonService.fetchPokemonData(pokemonName);
+        Pokemon pokemon = parsePokemonData(pokemonData); // Implement JSON parsing logic
+        return pokemonRepository.save(pokemon);
+    }
+
+    public String getRandomPokemonName() {
+        String[] pokemonNames = {"pikachu", "bulbasaur", "charmander", "squirtle"}; // Add more Pokémon names
+        int randomIndex = (int) (Math.random() * pokemonNames.length);
+        return pokemonNames[randomIndex];
+    }
+
+    private Pokemon parsePokemonData(String data) {
+        // Parse Pokémon data from JSON string and map it to the Pokémon model
+        // Use a library like Jackson or Gson to parse the JSON
+        return new Pokemon();
     }
 
 }
